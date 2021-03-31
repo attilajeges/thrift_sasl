@@ -135,12 +135,22 @@ EOF
 
   cd /tmp
 
+  # TODO: remove, for testing only
+  cd /io/local_pip_repo
+  nohup  /opt/python/cp35-cp35m/bin/python -m http.server 9000 &
+  cd /tmp
+
   # Install sdist with different python versions and run sanity_check.
   local sdistfn="$(ls ${SDIST_DIR}/${PKG_NAME}-*.tar.gz)"
   local pydir=""
   for pydir in /opt/python/*; do
     set_up_virt_env "$pydir"
-    pip install --upgrade --force-reinstall --no-binary "$PKG_NAME" "$sdistfn"
+
+    # TODO: remove, for testing onlty
+    pip install --extra-index-url=http://127.0.0.1:9000 \
+                --no-cache-dir --no-binary "$PKG_NAME" "$sdistfn"
+    # pip install --no-cache-dir --no-binary "$PKG_NAME" "$sdistfn"
+
     python /tmp/sanity_check.py
     tear_down_virt_env
   done
@@ -149,7 +159,12 @@ EOF
   local whlfn="$(ls ${WHEELHOUSE_DIR}/${PKG_NAME}-*-py2.py3-none-any.whl)"
   for pydir in /opt/python/*; do
     set_up_virt_env "$pydir"
-    pip install --upgrade --force-reinstall --only-binary "$PKG_NAME" "$whlfn"
+
+    # TODO: remove, for testing onlty
+    pip install --extra-index-url=http://127.0.0.1:9000 \
+                --no-cache-dir --only-binary "$PKG_NAME" "$whlfn"
+    # pip install --no-cache-dir --only-binary "$PKG_NAME" "$whlfn"
+
     python /tmp/sanity_check.py
     tear_down_virt_env
   done
